@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Madame Mystique's Fortune Booth</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
+      color: #fff;
+      font-family: 'Georgia', serif;
+      height: 100vh;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+    
+    .screen {
+      display: none;
+      width: 100vw;
+      height: 100vh;
+      padding: 20px;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    
+    .screen.active {
+      display: flex;
+    }
+    
+    /* Welcome Screen */
+    .welcome-screen {
+      background: linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
+      text-align: center;
+    }
+    
+    .title {
+      font-size: clamp(32px, 6vw, 48px);
+      color: #cd853f;
+      text-shadow: 0 0 30px rgba(205, 133, 63, 0.8);
+      margin-bottom: 40px;
+      line-height: 1.2;
+    }
+    
+    .subtitle {
+      font-size: clamp(18px, 3vw, 24px);
+      color: #ffd700;
+      margin-bottom: 50px;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    
+    .start-btn {
+      background: linear-gradient(45deg, #8b4513, #cd853f);
+      color: white;
+      padding: 25px 50px;
+      font-size: clamp(20px, 4vw, 28px);
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      animation: pulse 2s infinite;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
+    }
+    
+    .start-btn:hover, .start-btn:active {
+      transform: scale(1.05);
+    }
+    
+    @keyframes pulse {
+      0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 30px rgba(205, 133, 63, 0.5);
+      }
+      50% { 
+        transform: scale(1.05); 
+        box-shadow: 0 0 50px rgba(205, 133, 63, 0.8);
+      }
+    }
+    
+    /* Video Screen */
+    .video-screen {
+      background: #000;
+      padding: 10px;
+    }
+    
+    .video-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      background: #000;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 50px rgba(205, 133, 63, 0.5);
+    }
+    
+    video {
+      width: 100%;
+      max-width: 100%;
+      max-height: 80vh;
+      display: block;
+      background: #000;
+    }
+    
+    .video-message {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #cd853f;
+      font-size: 18px;
+      text-align: center;
+      background: rgba(0,0,0,0.8);
+      padding: 10px 20px;
+      border-radius: 10px;
+      z-index: 5;
+    }
+    
+    .continue-btn {
+      margin-top: 30px;
+      background: linear-gradient(45deg, #8b4513, #cd853f);
+      color: white;
+      padding: 20px 40px;
+      font-size: clamp(18px, 3vw, 24px);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes glow {
+      from { box-shadow: 0 0 20px rgba(205, 133, 63, 0.5); }
+      to { box-shadow: 0 0 40px rgba(205, 133, 63, 0.8); }
+    }
+    
+    /* Questions Screen */
+    .questions-screen {
+      background: radial-gradient(circle at center, rgba(139, 69, 19, 0.2), transparent),
+                  linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .form-container {
+      width: 100%;
+      max-width: 600px;
+      background: rgba(0,0,0,0.8);
+      border: 3px solid #cd853f;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 50px rgba(205, 133, 63, 0.3);
+    }
+    
+    .form-title {
+      color: #ffd700;
+      font-size: clamp(24px, 5vw, 32px);
+      text-align: center;
+      margin-bottom: 30px;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    label {
+      display: block;
+      color: #cd853f;
+      font-size: clamp(16px, 3vw, 20px);
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 15px;
+      font-size: clamp(16px, 3vw, 18px);
+      background: rgba(0,0,0,0.7);
+      border: 2px solid #8b4513;
+      color: white;
+      border-radius: 8px;
+      transition: border-color 0.3s ease;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: #cd853f;
+      box-shadow: 0 0 10px rgba(205, 133, 63, 0.5);
+    }
+    
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      cursor: pointer;
+    }
+    
+    .zodiac-display {
+      color: #ffd700;
+      text-align: center;
+      font-size: clamp(18px, 3vw, 22px);
+      margin-top: 10px;
+      min-height: 30px;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+    
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(45deg, #8b4513, #cd853f);
+      color: white;
+      padding: 20px;
+      font-size: clamp(18px, 4vw, 24px);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+      margin-top: 20px;
+      letter-spacing: 1px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
+    }
+    
+    .submit-btn:hover, .submit-btn:active {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+    }
+    
+    /* Loading Screen */
+    .loading-screen {
+      background: radial-gradient(circle at center, rgba(139, 69, 19, 0.3), transparent),
+                  #0a0015;
+      text-align: center;
+    }
+    
+    .crystal-ball-loader {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(139, 69, 19, 0.3), rgba(26, 0, 51, 0.9));
+      animation: rotate 3s linear infinite;
+      margin: 0 auto 30px;
+      box-shadow: 0 0 50px rgba(205, 133, 63, 0.5);
+    }
+    
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      font-size: clamp(20px, 4vw, 28px);
+      color: #cd853f;
+      animation: fade 1.5s ease-in-out infinite;
+      text-shadow: 0 0 20px rgba(205, 133, 63, 0.5);
+    }
+    
+    @keyframes fade {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .loading-dots {
+      margin-top: 20px;
+      font-size: 24px;
+      color: #ffd700;
+    }
+    
+    .loading-dots::after {
+      content: '';
+      animation: dots 2s infinite;
+    }
+    
+    @keyframes dots {
+      0% { content: '.'; }
+      33% { content: '..'; }
+      66% { content: '...'; }
+      100% { content: '....'; }
+    }
+    
+    /* Fortune Screen */
+    .fortune-screen {
+      background: radial-gradient(circle at center, rgba(255, 215, 0, 0.1), transparent),
+                  linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .fortune-container {
+      width: 100%;
+      max-width: 800px;
+      background: rgba(0,0,0,0.9);
+      border: 3px solid #ffd700;
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 0 60px rgba(255, 215, 0, 0.3);
+      animation: fortuneAppear 1s ease-out;
+    }
+    
+    @keyframes fortuneAppear {
+      from { 
+        opacity: 0; 
+        transform: scale(0.9) translateY(20px); 
+      }
+      to { 
+        opacity: 1; 
+        transform: scale(1) translateY(0); 
+      }
+    }
+    
+    .fortune-title {
+      color: #ffd700;
+      font-size: clamp(24px, 5vw, 36px);
+      margin-bottom: 30px;
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+    }
+    
+    .fortune-text {
+      font-size: clamp(18px, 3.5vw, 24px);
+      line-height: 1.8;
+      color: #fff;
+      margin-bottom: 40px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .next-btn {
+      background: linear-gradient(45deg, #666, #888);
+      color: white;
+      padding: 20px 40px;
+      font-size: clamp(16px, 3vw, 24px);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
+    }
+    
+    .next-btn:hover, .next-btn:active {
+      background: linear-gradient(45deg, #777, #999);
+      transform: translateY(-2px);
+    }
+    
+    /* iPad specific optimizations */
+    @media (min-width: 768px) {
+      .screen {
+        padding: 40px;
+      }
+      
+      .form-container {
+        padding: 40px;
+      }
+      
+      .fortune-container {
+        padding: 40px;
+      }
+    }
+    
+    /* Landscape orientation adjustments */
+    @media (orientation: landscape) {
+      .questions-screen .form-container {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+    }
+    
+    /* Error message styles */
+    .error-message {
+      background: rgba(255, 107, 107, 0.1);
+      border: 2px solid #ff6b6b;
+      color: #ff6b6b;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 20px 0;
+      text-align: center;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- Welcome Screen -->
+  <div id="welcome" class="screen welcome-screen active">
+    <h1 class="title">🔮 Madame Mystique's<br>Fortune Booth 🔮</h1>
+    <p class="subtitle">Step into the realm of mystery and discover what Halloween holds for you...</p>
+    <button class="start-btn" onclick="playVideo()">
+      Enter the Spirit Realm
+    </button>
+  </div>
+  
+  <!-- Video Screen -->
+  <div id="video" class="screen video-screen">
+    <div class="video-container">
+      <video id="mystique-video" playsinline webkit-playsinline preload="auto" poster="">
+        <source src="./Madame_Mystique.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      
+      <div class="video-message" id="video-message">
+        Tap the play button to hear from Madame Mystique
+      </div>
+    </div>
+    
+    <button id="continue-btn" class="continue-btn" onclick="showQuestions()" style="display: none;">
+      Answer the Spirits' Questions
+    </button>
+    
+    <div id="video-error" class="error-message" style="display: none;">
+      Video could not be loaded. Please check that Madame_Mystique.mp4 is in the same folder as this HTML file.
+    </div>
+  </div>
+  
+  <!-- Questions Screen -->
+  <div id="questions" class="screen questions-screen">
+    <div class="form-container">
+      <h2 class="form-title">🌟 The Spirits Await Your Answers... 🌟</h2>
+      <form id="fortune-form" onsubmit="submitForm(event)">
+        <div class="form-group">
+          <label>✨ Your Name:</label>
+          <input type="text" name="name" required placeholder="Enter your mystical name...">
+        </div>
+        
+        <div class="form-group">
+          <label>🎂 Your Birth Date:</label>
+          <input type="date" name="birthday" required onchange="showZodiac(this)">
+          <div id="zodiac" class="zodiac-display"></div>
+        </div>
+        
+        <div class="form-group">
+          <label>🔮 What Do You Seek Tonight?</label>
+          <select name="desire" required>
+            <option value="">Choose your heart's desire...</option>
+            <option value="love">💕 Love's Enchantment</option>
+            <option value="fortune">💰 Fortune's Blessing</option>
+            <option value="protection">🛡️ Mystical Protection</option>
+            <option value="wisdom">👁️ Ancient Wisdom</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>🎃 Choose Your Mystical Number (1-13):</label>
+          <input type="number" name="number" min="1" max="13" required placeholder="Your lucky Halloween number...">
+        </div>
+        
+        <button type="submit" class="submit-btn">
+          ✨ Divine My Halloween Fortune ✨
+        </button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Loading Screen -->
+  <div id="loading" class="screen loading-screen">
+    <div class="crystal-ball-loader"></div>
+    <div class="loading-text">The spirits are consulting the ancient scrolls</div>
+    <div class="loading-dots"></div>
+  </div>
+  
+  <!-- Fortune Screen -->
+  <div id="fortune" class="screen fortune-screen">
+    <div class="fortune-container">
+      <h2 class="fortune-title">✨ Your Halloween Fortune ✨</h2>
+      <div id="fortune-text" class="fortune-text"></div>
+      <button class="next-btn" onclick="reset()">
+        🎭 Next Guest Awaits 🎭
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // N8N Webhook URL
+    const N8N_WEBHOOK_URL = 'https://thaddeusd.app.n8n.cloud/webhook/halloween-fortune';
+    
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+    
+    function playVideo() {
+      showScreen('video');
+      const video = document.getElementById('mystique-video');
+      const videoMessage = document.getElementById('video-message');
+      const videoError = document.getElementById('video-error');
+      
+      console.log('Setting up video...');
+      
+      // Set up video event listeners
+      video.addEventListener('loadstart', function() {
+        console.log('Video loading started');
+        videoError.style.display = 'none';
+      });
+      
+      video.addEventListener('loadeddata', function() {
+        console.log('Video data loaded');
+        videoMessage.textContent = 'Enjoy the mystical message...';
+      });
+      
+      video.addEventListener('error', function(e) {
+        console.error('Video error:', e);
+        videoError.style.display = 'block';
+        videoMessage.textContent = 'Video unavailable - continue to questions';
+        document.getElementById('continue-btn').style.display = 'block';
+      });
+      
+      video.addEventListener('play', function() {
+        console.log('Video started playing');
+        videoMessage.style.display = 'none';
+      });
+      
+      video.addEventListener('ended', function() {
+        console.log('Video ended - showing continue button');
+        document.getElementById('continue-btn').style.display = 'block';
+        videoMessage.style.display = 'block';
+        videoMessage.textContent = 'The spirits have spoken!';
+      });
+      
+      // Try to load the video
+      video.load();
+      
+      // Start autoplay
+      setTimeout(() => {
+        video.play().then(() => {
+          console.log('Autoplay successful');
+        }).catch(error => {
+          console.log('Autoplay failed:', error);
+          videoMessage.textContent = 'Video could not start automatically';
+          // Show continue button if video fails to autoplay
+          setTimeout(() => {
+            document.getElementById('continue-btn').style.display = 'block';
+          }, 3000);
+        });
+      }, 500);
+    }
+    
+    function showQuestions() {
+      showScreen('questions');
+    }
+    
+    function showZodiac(input) {
+      const date = new Date(input.value);
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      
+      let zodiac = '';
+      if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) zodiac = '♈ Aries';
+      else if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) zodiac = '♉ Taurus';
+      else if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) zodiac = '♊ Gemini';
+      else if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) zodiac = '♋ Cancer';
+      else if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) zodiac = '♌ Leo';
+      else if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) zodiac = '♍ Virgo';
+      else if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) zodiac = '♎ Libra';
+      else if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) zodiac = '♏ Scorpio';
+      else if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) zodiac = '♐ Sagittarius';
+      else if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) zodiac = '♑ Capricorn';
+      else if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) zodiac = '♒ Aquarius';
+      else zodiac = '♓ Pisces';
+      
+      document.getElementById('zodiac').textContent = `${zodiac} soul detected by the spirits`;
+    }
+    
+    async function submitForm(event) {
+      event.preventDefault();
+      showScreen('loading');
+      
+      const formData = new FormData(event.target);
+      const data = Object.fromEntries(formData);
+      
+      // Calculate zodiac for the fortune
+      const date = new Date(data.birthday);
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      
+      let zodiac = '';
+      if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) zodiac = 'Aries';
+      else if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) zodiac = 'Taurus';
+      else if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) zodiac = 'Gemini';
+      else if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) zodiac = 'Cancer';
+      else if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) zodiac = 'Leo';
+      else if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) zodiac = 'Virgo';
+      else if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) zodiac = 'Libra';
+      else if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) zodiac = 'Scorpio';
+      else if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) zodiac = 'Sagittarius';
+      else if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) zodiac = 'Capricorn';
+      else if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) zodiac = 'Aquarius';
+      else zodiac = 'Pisces';
+      
+      data.zodiac = zodiac;
+      
+      try {
+        console.log('Sending request to:', N8N_WEBHOOK_URL);
+        console.log('Request data:', data);
+        
+        const response = await fetch(N8N_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+        
+        console.log('Response status:', response.status);
+        console.log('Response OK:', response.ok);
+        
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Full N8N response:', JSON.stringify(result));
+          
+          let fortuneToDisplay = null;
+          
+          // Try multiple extraction methods
+          if (Array.isArray(result)) {
+            console.log('Response is array with length:', result.length);
+            if (result.length > 0) {
+              fortuneToDisplay = result[0].fortune;
+              console.log('Extracted from array[0].fortune:', fortuneToDisplay);
+            }
+          } else if (result && result.fortune) {
+            fortuneToDisplay = result.fortune;
+            console.log('Extracted from result.fortune:', fortuneToDisplay);
+          } else if (result && result.json && result.json.fortune) {
+            fortuneToDisplay = result.json.fortune;
+            console.log('Extracted from result.json.fortune:', fortuneToDisplay);
+          }
+          
+          if (fortuneToDisplay && fortuneToDisplay !== 'undefined' && fortuneToDisplay !== undefined) {
+            console.log('SUCCESS - Displaying fortune:', fortuneToDisplay);
+            setTimeout(() => {
+              document.getElementById('fortune-text').innerHTML = fortuneToDisplay;
+              showScreen('fortune');
+            }, 3000);
+            return; // Important: exit here to prevent fallback
+          } else {
+            console.error('Could not extract fortune from:', result);
+            throw new Error('Fortune extraction failed');
+          }
+        } else {
+          console.error('Response not OK:', response.status);
+          throw new Error('Response not OK');
+        }
+        
+      } catch (error) {
+        console.error('ERROR:', error);
+        console.log('Using fallback fortune due to error');
+        
+        // Enhanced fallback fortunes
+        const fortunes = {
+          Aries: `🔥 ${data.name}, your fiery Aries spirit blazes brightest on Halloween night! The ancient spirits whisper that ${data.desire} shall manifest through the mystical power of ${data.number}. Beware of black cats crossing your moonlit path, but embrace the shadows - they hold the key to your Halloween destiny! 🌙`,
+          
+          Taurus: `🌿 ${data.name}, steadfast Taurus, the earth spirits have blessed your Halloween journey. Your quest for ${data.desire} aligns with the sacred number ${data.number}, opening portals to otherworldly abundance. A mysterious figure in an elaborate costume bears an important message for you tonight. 👻`,
+          
+          Gemini: `✨ ${data.name}, curious twin soul, the spirits reveal two magical paths before you this Halloween. Choose wisely, for ${data.desire} awaits where the number ${data.number} appears thrice. Your quick wit and dual nature will attract both mischievous sprites and benevolent spirits tonight. 🎭`,
+          
+          Cancer: `🌊 ${data.name}, intuitive Cancer, the veil between worlds is thinnest for you tonight. Your deep emotional connection to the mystical realm ensures that ${data.desire} manifests through the lunar power of ${data.number}. Trust your psychic intuitions when the witching hour strikes. 🔮`,
+          
+          Leo: `👑 ${data.name}, radiant Leo, you shall reign as the star of this haunted evening! Your magnetic presence draws ${data.desire} to you in ${data.number} magical moments. The spirits crown you with supernatural charisma - every costume party and trick-or-treat adventure bows to your Halloween majesty. ⭐`,
+          
+          Virgo: `🍃 ${data.name}, wise Virgo, the ancient spirits appreciate your methodical approach to magic. The precise alignment of ${data.number} with your desire for ${data.desire} creates perfect harmony in the supernatural realm. A carefully timed encounter at exactly the witching hour will change everything. ⚡`,
+          
+          Libra: `⚖️ ${data.name}, balanced Libra, Halloween tips the cosmic scales dramatically in your favor! Your harmonious nature attracts ${data.desire} through the equilibrium of ${data.number}. Dance with both light and shadow spirits under the harvest moon's mystical glow. 🌕`,
+          
+          Scorpio: `🦂 ${data.name}, mysterious Scorpio, this Halloween night pulses with YOUR primal power! The number ${data.number} unlocks the deepest secrets to achieving ${data.desire}. Your natural connection to the underworld draws supernatural entities close - wield this otherworldly influence wisely. 💀`,
+          
+          Sagittarius: `🏹 ${data.name}, adventurous Sagittarius, your Halloween quest leads you on an epic journey to ${data.desire}. Follow the mystical signs of ${data.number} as they appear throughout your night of adventure. Fortune in both candy and cosmic wisdom awaits the brave-hearted wanderer. 🎯`,
+          
+          Capricorn: `🏔️ ${data.name}, ambitious Capricorn, your patient determination earns the respect of ancient spirits tonight. The sacred number ${data.number} becomes your master key to unlocking ${data.desire}. The old souls and wise spirits recognize your unwavering dedication to your mystical goals. 🗝️`,
+          
+          Aquarius: `🌟 ${data.name}, unique Aquarius, your unconventional spirit blazes a trail to ${data.desire} tonight. The number ${data.number} will manifest in the most unexpected and magical places throughout your Halloween adventure. Your originality acts as a beacon, attracting kindred supernatural spirits in elaborate disguises. 👽`,
+          
+          Pisces: `🌊 ${data.name}, dreamy Pisces, the mystical realm opens its heart to embrace you completely tonight. Your intuitive wisdom about ${data.number} guides you effortlessly toward ${data.desire}. Swimming through the ethereal veil between worlds comes as naturally to you as breathing - tonight, you are truly home. 🧜‍♀️`
+        };
+        
+        const fallbackFortune = fortunes[zodiac] || `🎃 ${data.name}, the Halloween spirits weave a special enchantment just for you! Your heart's desire for ${data.desire} shall manifest through the mystical power of ${data.number}. Trust in the ancient magic that flows strongest on this night of nights! May your costume bring you luck and your treats be abundant! 🍭✨`;
+        
+        // Display fallback fortune after delay
+        setTimeout(() => {
+          document.getElementById('fortune-text').innerHTML = fallbackFortune;
+          showScreen('fortune');
+        }, 3000);
+      }
+    }
+    
+    function reset() {
+      document.getElementById('fortune-form').reset();
+      document.getElementById('zodiac').textContent = '';
+      document.getElementById('continue-btn').style.display = 'none';
+      document.getElementById('video-error').style.display = 'none';
+      
+      // Reset video
+      const video = document.getElementById('mystique-video');
+      const videoMessage = document.getElementById('video-message');
+      
+      video.currentTime = 0;
+      video.pause();
+      videoMessage.style.display = 'block';
+      videoMessage.textContent = 'Preparing mystical message...';
+      
+      showScreen('welcome');
+    }
+    
+    // Add touch event handling for better iPad experience
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Fortune booth loaded and ready!');
+      
+      // Prevent zoom on double tap
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', function (event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, false);
+      
+      // Debug video file availability
+      const video = document.getElementById('mystique-video');
+      setTimeout(() => {
+        console.log('Video element source:', video.src);
+        console.log('Video ready state:', video.readyState);
+        console.log('Video network state:', video.networkState);
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
