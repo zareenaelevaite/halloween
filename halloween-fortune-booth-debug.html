@@ -73,8 +73,13 @@
       letter-spacing: 2px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       transition: all 0.3s ease;
+      display: inline-block;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      touch-action: manipulation;
     }
-    
+
     .start-btn:hover, .start-btn:active {
       transform: scale(1.05);
     }
@@ -93,9 +98,12 @@
     /* Video Screen */
     .video-screen {
       background: #000;
-      padding: 10px;
+      padding: 20px;
+      justify-content: flex-start;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
-    
+
     .video-container {
       position: relative;
       width: 100%;
@@ -104,14 +112,24 @@
       border-radius: 15px;
       overflow: hidden;
       box-shadow: 0 0 50px rgba(205, 133, 63, 0.5);
+      flex-shrink: 0;
     }
-    
+
     video {
       width: 100%;
       max-width: 100%;
-      max-height: 80vh;
+      max-height: 60vh;
       display: block;
       background: #000;
+    }
+
+    /* Caption styling */
+    video::cue {
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #ffd700;
+      font-size: 24px;
+      font-family: Georgia, serif;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
     }
     
     .video-message {
@@ -130,10 +148,11 @@
     
     .continue-btn {
       margin-top: 30px;
+      margin-bottom: 30px;
       background: linear-gradient(45deg, #8b4513, #cd853f);
       color: white;
       padding: 20px 40px;
-      font-size: clamp(18px, 3vw, 24px);
+      font-size: clamp(20px, 4vw, 28px);
       border: none;
       border-radius: 10px;
       cursor: pointer;
@@ -141,6 +160,13 @@
       letter-spacing: 1px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       animation: glow 2s ease-in-out infinite alternate;
+      display: inline-block;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      touch-action: manipulation;
+      min-height: 60px;
+      flex-shrink: 0;
     }
     
     @keyframes glow {
@@ -232,8 +258,13 @@
       letter-spacing: 1px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       transition: all 0.3s ease;
+      display: block;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      touch-action: manipulation;
     }
-    
+
     .submit-btn:hover, .submit-btn:active {
       transform: translateY(-2px);
       box-shadow: 0 15px 40px rgba(0,0,0,0.7);
@@ -349,8 +380,13 @@
       letter-spacing: 1px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       transition: all 0.3s ease;
+      display: inline-block;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      touch-action: manipulation;
     }
-    
+
     .next-btn:hover, .next-btn:active {
       background: linear-gradient(45deg, #777, #999);
       transform: translateY(-2px);
@@ -408,6 +444,7 @@
     <div class="video-container">
       <video id="mystique-video" playsinline webkit-playsinline preload="auto" poster="">
         <source src="./Madame_Mystique.mp4" type="video/mp4">
+        <track kind="captions" src="./madame_mystique_captions.vtt" srclang="en" label="English">
         Your browser does not support the video tag.
       </video>
       
@@ -508,6 +545,13 @@
       video.addEventListener('loadeddata', function() {
         console.log('Video data loaded');
         videoMessage.textContent = 'Enjoy the mystical message...';
+
+        // Enable captions by default
+        const tracks = video.textTracks;
+        if (tracks.length > 0) {
+          tracks[0].mode = 'showing';
+          console.log('Captions enabled');
+        }
       });
       
       video.addEventListener('error', function(e) {
