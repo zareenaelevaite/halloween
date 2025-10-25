@@ -526,7 +526,14 @@
     
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(screenId).classList.add('active');
+      const screen = document.getElementById(screenId);
+      screen.classList.add('active');
+
+      // Reset scroll position to top when showing a screen
+      setTimeout(() => {
+        screen.scrollTop = 0;
+        window.scrollTo(0, 0);
+      }, 0);
     }
     
     function playVideo() {
@@ -740,20 +747,28 @@
     }
     
     function reset() {
+      // Reset all screens scroll position
+      document.querySelectorAll('.screen').forEach(screen => {
+        screen.scrollTop = 0;
+      });
+
       document.getElementById('fortune-form').reset();
       document.getElementById('zodiac').textContent = '';
       document.getElementById('continue-btn').style.display = 'none';
       document.getElementById('video-error').style.display = 'none';
-      
+
       // Reset video
       const video = document.getElementById('mystique-video');
       const videoMessage = document.getElementById('video-message');
-      
+
       video.currentTime = 0;
       video.pause();
       videoMessage.style.display = 'block';
-      videoMessage.textContent = 'Preparing mystical message...';
-      
+      videoMessage.textContent = 'Tap the play button to hear from Madame Mystique';
+
+      // Scroll to top of page
+      window.scrollTo(0, 0);
+
       showScreen('welcome');
     }
     
