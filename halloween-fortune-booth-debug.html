@@ -328,6 +328,8 @@
                   linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      justify-content: flex-start;
+      padding-top: 40px;
     }
     
     .fortune-container {
@@ -337,9 +339,11 @@
       border: 3px solid #ffd700;
       border-radius: 20px;
       padding: 30px;
+      margin-bottom: 40px;
       text-align: center;
       box-shadow: 0 0 60px rgba(255, 215, 0, 0.3);
       animation: fortuneAppear 1s ease-out;
+      flex-shrink: 0;
     }
     
     @keyframes fortuneAppear {
